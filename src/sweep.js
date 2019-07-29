@@ -15,8 +15,8 @@ export default function sweep(apiKey = '') {
     */
 
     // Track event
-    const trackEventMutation = () => `mutation trackEvent($client: String!, $meta: JSON) {
-          trackEvent(input: { name:"userSession", client: $client, meta: $meta }) { 
+    const trackEventMutation = () => `mutation trackEvent($name: String!, $client: String!, $meta: JSON) {
+          trackEvent(input: { name: $name, client: $client, meta: $meta }) { 
             name,
             client,
             meta
@@ -57,6 +57,7 @@ export default function sweep(apiKey = '') {
                 operationName: "trackEvent",
                 query: trackEventMutation(),
                 variables: {
+                    name: 'userSession',
                     client: clientId,
                     meta: meta
                 }
@@ -74,17 +75,43 @@ export default function sweep(apiKey = '') {
     }
 
     // Track events
-    function trackEvent(meta = {}) {
+    function trackEvent(event, meta = {}) {
         if (!cookie('s_a_js_uid')) {
             cookie('s_a_js_uid', uuidv4(), '');
         }
 
-        // TODO add track event function
+        meta.path = document.location.pathname;
 
+        const options = {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                operationName: "trackEvent",
+                query: trackEventMutation(),
+                variables: {
+                    name: event,
+                    client: clientId,
+                    meta: meta
+                }
+            })
+        };
+
+        fetch(`https://api.sweep-analytics.com/graphql`, options)
+            .then((res) => {
+                console.log(res.json());
+            })
+            .catch((err) => {
+                console.log(err);
+            })
 
     }
 
     // Track user flow
     function trackUserFlow() {}
+
+    // Track user flow
+    function trackUserDuration() {}
 
 }
