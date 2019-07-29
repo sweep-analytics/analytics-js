@@ -1,8 +1,7 @@
-import cookie from 'component-cookie';
-import uuidv4 from 'uuid/v4';
+import * as cookie from 'component-cookie';
+import * as uuidv4 from 'uuid/v4';
 
 export default function sweep(apiKey = '') {
-
     const clientId = apiKey;
 
     // Throw error if no api key is provided
@@ -29,8 +28,8 @@ export default function sweep(apiKey = '') {
 
     // Track page views
     function trackPageViews() {
-        if (!cookie('s_a_js_uid')) {
-            cookie('s_a_js_uid', uuidv4(), '');
+        if (!cookie.cookie('s_a_js_uid')) {
+            cookie.cookie('s_a_js_uid', uuidv4.uuidv4(), '');
         }
 
         const url = document.location.pathname;
@@ -40,26 +39,26 @@ export default function sweep(apiKey = '') {
         const screen = `${screen.width}x${screen.height}`;
 
         const meta = {
-            url: url,
-            referrer: referrer,
-            anonymousId: cookie('s_a_js_uid'),
-            language: language,
-            platform: platform,
-            screen: screen
+            url,
+            referrer,
+            anonymousId: cookie.cookie('s_a_js_uid'),
+            language,
+            platform,
+            screen
         };
 
         const options = {
-            method: "post",
+            method: 'post',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                operationName: "trackEvent",
+                operationName: 'trackEvent',
                 query: trackEventMutation(),
                 variables: {
                     name: 'userSession',
                     client: clientId,
-                    meta: meta
+                    meta
                 }
             })
         };
@@ -76,42 +75,41 @@ export default function sweep(apiKey = '') {
 
     // Track events
     function trackEvent(event, meta = {}) {
-        if (!cookie('s_a_js_uid')) {
-            cookie('s_a_js_uid', uuidv4(), '');
+        if (!cookie.cookie('s_a_js_uid')) {
+            cookie.cookie('s_a_js_uid', uuidv4.uuidv4(), '');
         }
 
         meta.path = document.location.pathname;
 
         const options = {
-            method: "post",
+            method: 'post',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                operationName: "trackEvent",
+                operationName: 'trackEvent',
                 query: trackEventMutation(),
                 variables: {
                     name: event,
                     client: clientId,
-                    meta: meta
+                    meta
                 }
             })
         };
 
-        fetch(`https://api.sweep-analytics.com/graphql`, options)
+        fetch('https://api.sweep-analytics.com/graphql', options)
             .then((res) => {
                 console.log(res.json());
             })
-            .catch((err) => {
-                console.log(err);
-            })
+            .catch((error) => {
+                console.log(error);
+            });
 
     }
 
     // Track user flow
-    function trackUserFlow() {}
+    // function trackUserFlow() {}
 
     // Track user flow
-    function trackUserDuration() {}
-
+    // function trackUserDuration() {}
 }
