@@ -1,7 +1,7 @@
 sweep analytics js
 =====
 
-Lightweight and dependency-free content toggling with a focus on accessibility.
+Developer friendly ES6 tracking library for sweep analytics.
 
 
 About
