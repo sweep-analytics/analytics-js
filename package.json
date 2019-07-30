@@ -18,6 +18,7 @@
   "main": "dist/sweep.js",
   "browser": "dist/sweep.min.js",
   "module": "dist/sweep.mjs",
+  "test": "test/assets/js/sweep.min.js",
   "files": [
     "dist",
     "src"
@@ -87,7 +88,9 @@
     "xo": "^0.24.0"
   },
   "dependencies": {
+    "@bundled-es-modules/uuid": "^3.3.2-rc2",
     "component-cookie": "^1.1.4",
+    "js-cookie": "^2.2.0",
     "uuid": "^3.3.2",
     "uuidv4": "^4.0.0"
   }

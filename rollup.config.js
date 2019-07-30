@@ -59,6 +59,21 @@ export default [
         input: 'src/sweep.js',
         output: {
             banner: banner(),
+            file: pkg.test,
+            format: 'umd',
+            name: 'sweep'
+        },
+        plugins: [
+            cleanPlugin,
+            resolvePlugin,
+            babelPlugin,
+            cleanupPlugin
+        ]
+    },
+    {
+        input: 'src/sweep.js',
+        output: {
+            banner: banner(),
             file: pkg.browser,
             format: 'umd',
             name: 'sweep'

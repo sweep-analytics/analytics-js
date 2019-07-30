@@ -1,35 +1,28 @@
-import * as cookie from 'component-cookie';
-import * as uuidv4 from 'uuid/v4';
+import uuidv4 from "@bundled-es-modules/uuid/v4.js";
+import cookie from './cookies';
 
-export default function sweep(apiKey = '') {
-    const clientId = apiKey;
+export default class Sweep {
 
-    // Throw error if no api key is provided
-    if (!clientId) {
-        throw new Error('No api key provided');
-    }
+    constructor(apiKey) {
+        this.clientId = apiKey;
 
-    /*
-    * Mutations
-    */
-
-    // Track event
-    const trackEventMutation = () => `mutation trackEvent($name: String!, $client: String!, $meta: JSON) {
+        this.trackEventMutation = () => `mutation trackEvent($name: String!, $client: String!, $meta: JSON) {
           trackEvent(input: { name: $name, client: $client, meta: $meta }) { 
             name,
             client,
             meta
           }
         }`;
+    }
 
     /*
     * Functions
     */
 
     // Track page views
-    function trackPageViews() {
-        if (!cookie.cookie('s_a_js_uid')) {
-            cookie.cookie('s_a_js_uid', uuidv4.uuidv4(), '');
+    trackPageViews() {
+        if (!cookie.get('s_a_js_uid')) {
+            cookie.set('s_a_js_uid', uuidv4());
         }
 
         const url = document.location.pathname;
@@ -41,7 +34,7 @@ export default function sweep(apiKey = '') {
         const meta = {
             url,
             referrer,
-            anonymousId: cookie.cookie('s_a_js_uid'),
+            anonymousId: cookie.get('s_a_js_uid'),
             language,
             platform,
             screen
@@ -54,10 +47,10 @@ export default function sweep(apiKey = '') {
             },
             body: JSON.stringify({
                 operationName: 'trackEvent',
-                query: trackEventMutation(),
+                query: this.trackEventMutation(),
                 variables: {
                     name: 'userSession',
-                    client: clientId,
+                    client: this.clientId,
                     meta
                 }
             })
@@ -74,9 +67,9 @@ export default function sweep(apiKey = '') {
     }
 
     // Track events
-    function trackEvent(event, meta = {}) {
-        if (!cookie.cookie('s_a_js_uid')) {
-            cookie.cookie('s_a_js_uid', uuidv4.uuidv4(), '');
+    trackEvent(event, meta = {}) {
+        if (!cookie.get('s_a_js_uid')) {
+            cookie.set('s_a_js_uid', uuidv4());
         }
 
         meta.path = document.location.pathname;
@@ -88,10 +81,10 @@ export default function sweep(apiKey = '') {
             },
             body: JSON.stringify({
                 operationName: 'trackEvent',
-                query: trackEventMutation(),
+                query: this.trackEventMutation(),
                 variables: {
                     name: event,
-                    client: clientId,
+                    client: this.clientId,
                     meta
                 }
             })

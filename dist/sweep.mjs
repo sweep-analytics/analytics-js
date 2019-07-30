@@ -3,96 +3,94 @@
  * Copyright (c) 2019-2019 Fabian Bentz & Jonas Regner
  * License: MIT
  */
-var debug = require('debug')('cookie');
-module.exports = function (name, value, options) {
-  switch (arguments.length) {
-    case 3:
-    case 2:
-      return set(name, value, options);
-    case 1:
-      return get(name);
-    default:
-      return all();
-  }
-};
-function set(name, value, options) {
-  options = options || {};
-  var str = encode(name) + '=' + encode(value);
-  if (null == value) options.maxage = -1;
-  if (options.maxage) {
-    options.expires = new Date(+new Date() + options.maxage);
-  }
-  if (options.path) str += '; path=' + options.path;
-  if (options.domain) str += '; domain=' + options.domain;
-  if (options.expires) str += '; expires=' + options.expires.toUTCString();
-  if (options.secure) str += '; secure';
-  document.cookie = str;
+function createCommonjsModule(fn, module) {
+  return module = {
+    exports: {}
+  }, fn(module, module.exports), module.exports;
 }
-function all() {
-  var str;
-  try {
-    str = document.cookie;
-  } catch (err) {
-    if (typeof console !== 'undefined' && typeof console.error === 'function') {
-      console.error(err.stack || err);
-    }
-    return {};
+var rngBrowser = createCommonjsModule(function (module) {
+  var getRandomValues = typeof crypto != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto);
+  if (getRandomValues) {
+    var rnds8 = new Uint8Array(16);
+    module.exports = function whatwgRNG() {
+      getRandomValues(rnds8);
+      return rnds8;
+    };
+  } else {
+    var rnds = new Array(16);
+    module.exports = function mathRNG() {
+      for (var i = 0, r; i < 16; i++) {
+        if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+        rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+      }
+      return rnds;
+    };
   }
-  return parse(str);
+});
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
 }
-function get(name) {
-  return all()[name];
-}
-function parse(str) {
-  var obj = {};
-  var pairs = str.split(/ *; */);
-  var pair;
-  if ('' == pairs[0]) return obj;
-  for (var i = 0; i < pairs.length; ++i) {
-    pair = pairs[i].split('=');
-    obj[decode(pair[0])] = decode(pair[1]);
-  }
-  return obj;
-}
-function encode(value) {
-  try {
-    return encodeURIComponent(value);
-  } catch (e) {
-    debug('error `encode(%o)` - %o', value, e);
-  }
-}
-function decode(value) {
-  try {
-    return decodeURIComponent(value);
-  } catch (e) {
-    debug('error `decode(%o)` - %o', value, e);
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
   }
 }
 
-var rng = require('./lib/rng');
-var bytesToUuid = require('./lib/bytesToUuid');
-function v4(options, buf, offset) {
-  var i = buf && offset || 0;
-  if (typeof options == 'string') {
-    buf = options === 'binary' ? new Array(16) : null;
-    options = null;
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
   }
-  options = options || {};
-  var rnds = options.random || (options.rng || rng)();
-  rnds[6] = rnds[6] & 0x0f | 0x40;
-  rnds[8] = rnds[8] & 0x3f | 0x80;
-  if (buf) {
-    for (var ii = 0; ii < 16; ++ii) {
-      buf[i + ii] = rnds[ii];
-    }
-  }
-  return buf || bytesToUuid(rnds);
 }
-module.exports = v4;
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+var cookie =
+function () {
+  function cookie() {
+    _classCallCheck(this, cookie);
+  }
+  _createClass(cookie, [{
+    key: "set",
+    value: function set(name, value) {
+      var date = new Date();
+      date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+      var expires = "; expires=" + date.toUTCString();
+      document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+  }, {
+    key: "get",
+    value: function get(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') {
+          c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+          return c.substring(nameEQ.length, c.length);
+        }
+      }
+      return null;
+    }
+  }]);
+  return cookie;
+}();
 
 function sweep() {
   var apiKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
   var clientId = apiKey;
+  console.log(clientId);
   if (!clientId) {
     throw new Error('No api key provided');
   }
