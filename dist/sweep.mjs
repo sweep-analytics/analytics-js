@@ -3,6 +3,28 @@
  * Copyright (c) 2019-2019 Fabian Bentz & Jonas Regner
  * License: MIT
  */
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
 function createCommonjsModule(fn, module) {
   return module = {
     exports: {}
@@ -31,28 +53,30 @@ var byteToHex = [];
 for (var i = 0; i < 256; ++i) {
   byteToHex[i] = (i + 0x100).toString(16).substr(1);
 }
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
+}
+var bytesToUuid_1 = bytesToUuid;
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+  if (typeof options == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
   }
-}
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
+  options = options || {};
+  var rnds = options.random || (options.rng || rngBrowser)();
+  rnds[6] = rnds[6] & 0x0f | 0x40;
+  rnds[8] = rnds[8] & 0x3f | 0x80;
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
   }
+  return buf || bytesToUuid_1(rnds);
 }
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
+var v4_1 = v4;
 
 var cookie =
 function () {
@@ -87,13 +111,86 @@ function () {
   return cookie;
 }();
 
-function sweep() {
-  var apiKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  var clientId = apiKey;
-  console.log(clientId);
-  if (!clientId) {
-    throw new Error('No api key provided');
+var Sweep =
+function () {
+  function Sweep(apiKey) {
+    _classCallCheck(this, Sweep);
+    this.clientId = apiKey;
+    this.trackEventMutation = function () {
+      return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n          trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n            name,\n            client,\n            meta\n          }\n        }";
+    };
   }
-}
+  _createClass(Sweep, [{
+    key: "trackPageViews",
+    value: function trackPageViews() {
+      if (!cookie.get('s_a_js_uid')) {
+        cookie.set('s_a_js_uid', v4_1());
+      }
+      var url = document.location.pathname;
+      var referrer = document.referrer;
+      var language = navigator.language;
+      var platform = navigator.platform;
+      var screen = "".concat(screen.width, "x").concat(screen.height);
+      var meta = {
+        url: url,
+        referrer: referrer,
+        anonymousId: cookie.get('s_a_js_uid'),
+        language: language,
+        platform: platform,
+        screen: screen
+      };
+      var options = {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          operationName: 'trackEvent',
+          query: this.trackEventMutation(),
+          variables: {
+            name: 'userSession',
+            client: this.clientId,
+            meta: meta
+          }
+        })
+      };
+      fetch("https://api.sweep-analytics.com/graphql", options).then(function (res) {
+        console.log(res.json());
+      }).catch(function (err) {
+        console.log(err);
+      });
+    }
+  }, {
+    key: "trackEvent",
+    value: function trackEvent(event) {
+      var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      if (!cookie.get('s_a_js_uid')) {
+        cookie.set('s_a_js_uid', v4_1());
+      }
+      meta.path = document.location.pathname;
+      var options = {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          operationName: 'trackEvent',
+          query: this.trackEventMutation(),
+          variables: {
+            name: event,
+            client: this.clientId,
+            meta: meta
+          }
+        })
+      };
+      fetch('https://api.sweep-analytics.com/graphql', options).then(function (res) {
+        console.log(res.json());
+      }).catch(function (error) {
+        console.log(error);
+      });
+    }
+  }]);
+  return Sweep;
+}();
 
-export default sweep;
+export default Sweep;

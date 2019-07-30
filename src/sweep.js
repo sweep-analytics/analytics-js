@@ -101,8 +101,8 @@ export default class Sweep {
     }
 
     // Track user flow
-    // function trackUserFlow() {}
+    // trackUserFlow() {}
 
     // Track user flow
-    // function trackUserDuration() {}
+    // trackUserDuration() {}
 }

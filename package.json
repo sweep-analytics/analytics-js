@@ -18,7 +18,7 @@
   "main": "dist/sweep.js",
   "browser": "dist/sweep.min.js",
   "module": "dist/sweep.mjs",
-  "test": "test/assets/js/sweep.min.js",
+  "test": "test/assets/js/sweep.mjs",
   "files": [
     "dist",
     "src"
