@@ -27,7 +27,7 @@ const cleanupPlugin = cleanup({
 
 export default [
     {
-        input: 'src/sweep.js',
+        input: 'src/index.js',
         output: {
             banner: banner(),
             file: pkg.module,
@@ -41,12 +41,12 @@ export default [
         ]
     },
     {
-        input: 'src/sweep.js',
+        input: 'src/index.js',
         output: {
             banner: banner(),
             file: pkg.main,
             format: 'umd',
-            name: 'sweep'
+            name: 'index'
         },
         plugins: [
             cleanPlugin,
@@ -56,12 +56,12 @@ export default [
         ]
     },
     {
-        input: 'src/sweep.js',
+        input: 'src/index.js',
         output: {
             banner: banner(),
             file: pkg.test,
             format: 'umd',
-            name: 'sweep'
+            name: 'index'
         },
         plugins: [
             cleanPlugin,
@@ -71,12 +71,12 @@ export default [
         ]
     },
     {
-        input: 'src/sweep.js',
+        input: 'src/index.js',
         output: {
             banner: banner(),
             file: pkg.browser,
             format: 'umd',
-            name: 'sweep'
+            name: 'index'
         },
         plugins: [
             cleanPlugin,

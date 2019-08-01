@@ -9,20 +9,53 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
   }
+
+  return obj;
 }
 
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(source, true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(source).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
 }
 
 function createCommonjsModule(fn, module) {
@@ -78,119 +111,135 @@ function v4(options, buf, offset) {
 }
 var v4_1 = v4;
 
-var cookie =
-function () {
-  function cookie() {
-    _classCallCheck(this, cookie);
+function cookieSet(name, value) {
+  var date = new Date();
+  date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+  var expires = "; expires=" + date.toUTCString();
+  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+function cookieGet(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1, c.length);
+    }
+    if (c.indexOf(nameEQ) === 0) {
+      return c.substring(nameEQ.length, c.length);
+    }
   }
-  _createClass(cookie, [{
-    key: "set",
-    value: function set(name, value) {
-      var date = new Date();
-      date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
-      var expires = "; expires=" + date.toUTCString();
-      document.cookie = name + "=" + (value || "") + expires + "; path=/";
-    }
-  }, {
-    key: "get",
-    value: function get(name) {
-      var nameEQ = name + "=";
-      var ca = document.cookie.split(';');
-      for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) === ' ') {
-          c = c.substring(1, c.length);
-        }
-        if (c.indexOf(nameEQ) === 0) {
-          return c.substring(nameEQ.length, c.length);
-        }
-      }
-      return null;
-    }
-  }]);
-  return cookie;
-}();
+  return null;
+}
 
-var Sweep =
-function () {
-  function Sweep(apiKey) {
-    _classCallCheck(this, Sweep);
-    this.clientId = apiKey;
-    this.trackEventMutation = function () {
-      return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n          trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n            name,\n            client,\n            meta\n          }\n        }";
-    };
+var Sweep = function Sweep(apiKey) {
+  _classCallCheck(this, Sweep);
+  this.clientId = apiKey;
+  window.sweep = {
+    sweepApiKey: apiKey
+  };
+}
+;
+var trackEventMutation = function trackEventMutation() {
+  return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n  trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n    name,\n    client,\n    meta\n  }\n}";
+};
+function trackPageViews(screen) {
+  if (!cookieGet('s_a_js_uid')) {
+    cookieSet('s_a_js_uid', v4_1());
   }
-  _createClass(Sweep, [{
-    key: "trackPageViews",
-    value: function trackPageViews() {
-      if (!cookie.get('s_a_js_uid')) {
-        cookie.set('s_a_js_uid', v4_1());
+  var clientId = window.sweep.sweepApiKey;
+  if (!clientId) {
+    throw new Error('No api key provided');
+  }
+  var url = document.location.pathname;
+  var referrer = document.referrer;
+  var language = navigator.language;
+  var platform = navigator.platform;
+  var size = "".concat(window.screen.width, "x").concat(window.screen.height);
+  var meta = {
+    url: url,
+    referrer: referrer,
+    anonymousId: cookieGet('s_a_js_uid'),
+    language: language,
+    platform: platform,
+    screen: size
+  };
+  var options = {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      operationName: 'trackEvent',
+      query: trackEventMutation(),
+      variables: {
+        name: 'userSession',
+        client: clientId,
+        meta: meta
       }
-      var url = document.location.pathname;
-      var referrer = document.referrer;
-      var language = navigator.language;
-      var platform = navigator.platform;
-      var screen = "".concat(screen.width, "x").concat(screen.height);
-      var meta = {
-        url: url,
-        referrer: referrer,
-        anonymousId: cookie.get('s_a_js_uid'),
-        language: language,
-        platform: platform,
-        screen: screen
-      };
-      var options = {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          operationName: 'trackEvent',
-          query: this.trackEventMutation(),
-          variables: {
-            name: 'userSession',
-            client: this.clientId,
-            meta: meta
-          }
-        })
-      };
-      fetch("https://api.sweep-analytics.com/graphql", options).then(function (res) {
-        console.log(res.json());
-      }).catch(function (err) {
-        console.log(err);
-      });
-    }
-  }, {
-    key: "trackEvent",
-    value: function trackEvent(event) {
-      var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      if (!cookie.get('s_a_js_uid')) {
-        cookie.set('s_a_js_uid', v4_1());
+    })
+  };
+  fetch("https://api.sweep-analytics.com/public", options).then(function (res) {
+    console.log('pageview tracked');
+  }).catch(function (err) {
+    console.log(err);
+  });
+}
+function trackEvents(event) {
+  var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  if (!cookieGet('s_a_js_uid')) {
+    cookieSet('s_a_js_uid', v4_1());
+  }
+  var clientId = window.sweep.sweepApiKey;
+  if (!clientId) {
+    throw new Error('No api key provided');
+  }
+  meta.path = document.location.pathname;
+  var options = {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      operationName: 'trackEvent',
+      query: trackEventMutation(),
+      variables: {
+        name: event,
+        client: clientId,
+        meta: meta
       }
-      meta.path = document.location.pathname;
-      var options = {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          operationName: 'trackEvent',
-          query: this.trackEventMutation(),
-          variables: {
-            name: event,
-            client: this.clientId,
-            meta: meta
-          }
-        })
-      };
-      fetch('https://api.sweep-analytics.com/graphql', options).then(function (res) {
-        console.log(res.json());
-      }).catch(function (error) {
-        console.log(error);
-      });
-    }
-  }]);
-  return Sweep;
-}();
+    })
+  };
+  fetch('https://api.sweep-analytics.com/public', options).then(function (res) {
+    console.log('click event tracked');
+  }).catch(function (error) {
+    console.log(error);
+  });
+}
 
-export default Sweep;
+var api = getSyncScriptParams();
+document.addEventListener("DOMContentLoaded", function () {
+  console.log('Your document is ready!');
+  var sweepInit = new Sweep(api.key);
+  trackPageView();
+  var clickEvents = [].slice.call(document.querySelectorAll('[data-sweep-click]'));
+  clickEvents.forEach(function (clickEvent) {
+    clickEvent.addEventListener('click', function (el) {
+      var eventData = el.target.getAttribute('data-sweep-click');
+      trackEvent('click', _objectSpread2({}, eventData.split(",")));
+    });
+  });
+});
+var trackEvent = function trackEvent(name, data) {
+  trackEvents(name, data);
+};
+var trackPageView = function trackPageView() {
+  trackPageViews();
+};
+function getSyncScriptParams() {
+  var scripts = document.currentScript;
+  console.log(scripts.getAttribute('key'));
+  return {
+    key: scripts.getAttribute('key')
+  };
+}
