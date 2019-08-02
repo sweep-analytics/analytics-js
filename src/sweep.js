@@ -1,7 +1,7 @@
 import uuidv4 from "@bundled-es-modules/uuid/v4.js";
 import { cookieSet, cookieGet } from './cookies';
 
-export class Sweep {
+export default class Sweep {
 
     constructor(apiKey) {
         this.clientId = apiKey;
@@ -40,11 +40,13 @@ export function trackPageViews(screen) {
         throw new Error('No api key provided');
     }
 
+    console.log(cookieGet('s_a_js_uid'));
+
     const url = document.location.pathname;
     const referrer = document.referrer;
     const language = navigator.language;
     const platform = navigator.platform;
-    const size = `${screen.width}x${screen.height}`;
+    const size = `${window.screen.width}x${window.screen.height}`;
 
     const meta = {
         url,
@@ -85,6 +87,8 @@ export function trackEvents(event, meta = {}) {
     if (!cookieGet('s_a_js_uid')) {
         cookieSet('s_a_js_uid', uuidv4());
     }
+
+    console.log(cookieGet('s_a_js_uid'));
 
     const clientId = window.sweep.sweepApiKey;
 

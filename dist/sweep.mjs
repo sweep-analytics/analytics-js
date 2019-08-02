@@ -144,6 +144,7 @@ var trackEventMutation = function trackEventMutation() {
   return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n  trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n    name,\n    client,\n    meta\n  }\n}";
 };
 function trackPageViews(screen) {
+  console.log('trackPageViews');
   if (!cookieGet('s_a_js_uid')) {
     cookieSet('s_a_js_uid', v4_1());
   }
@@ -151,6 +152,7 @@ function trackPageViews(screen) {
   if (!clientId) {
     throw new Error('No api key provided');
   }
+  console.log(cookieGet('s_a_js_uid'));
   var url = document.location.pathname;
   var referrer = document.referrer;
   var language = navigator.language;
@@ -180,7 +182,6 @@ function trackPageViews(screen) {
     })
   };
   fetch("https://api.sweep-analytics.com/public", options).then(function (res) {
-    console.log('pageview tracked');
   }).catch(function (err) {
     console.log(err);
   });
@@ -190,6 +191,7 @@ function trackEvents(event) {
   if (!cookieGet('s_a_js_uid')) {
     cookieSet('s_a_js_uid', v4_1());
   }
+  console.log(cookieGet('s_a_js_uid'));
   var clientId = window.sweep.sweepApiKey;
   if (!clientId) {
     throw new Error('No api key provided');
@@ -211,7 +213,6 @@ function trackEvents(event) {
     })
   };
   fetch('https://api.sweep-analytics.com/public', options).then(function (res) {
-    console.log('click event tracked');
   }).catch(function (error) {
     console.log(error);
   });
