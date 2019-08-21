@@ -1,5 +1,5 @@
 /*!
- * sweep-analytics-js v0.0.1
+ * sweep-analytics-js v0.0.2
  * Copyright (c) 2019-2019 Fabian Bentz & Jonas Regner
  * License: MIT
  */
@@ -143,8 +143,7 @@ var Sweep = function Sweep(apiKey) {
 var trackEventMutation = function trackEventMutation() {
   return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n  trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n    name,\n    client,\n    meta\n  }\n}";
 };
-function trackPageViews(screen) {
-  console.log('trackPageViews');
+function trackPageViews() {
   if (!cookieGet('s_a_js_uid')) {
     cookieSet('s_a_js_uid', v4_1());
   }
@@ -152,7 +151,6 @@ function trackPageViews(screen) {
   if (!clientId) {
     throw new Error('No api key provided');
   }
-  console.log(cookieGet('s_a_js_uid'));
   var url = document.location.pathname;
   var referrer = document.referrer;
   var language = navigator.language;
@@ -191,7 +189,6 @@ function trackEvents(event) {
   if (!cookieGet('s_a_js_uid')) {
     cookieSet('s_a_js_uid', v4_1());
   }
-  console.log(cookieGet('s_a_js_uid'));
   var clientId = window.sweep.sweepApiKey;
   if (!clientId) {
     throw new Error('No api key provided');
@@ -217,10 +214,35 @@ function trackEvents(event) {
     console.log(error);
   });
 }
+function trackErrors() {
+  if (!cookieGet('s_a_js_uid')) {
+    cookieSet('s_a_js_uid', v4_1());
+  }
+  var clientId = window.sweep.sweepApiKey;
+  if (!clientId) {
+    throw new Error('No api key provided');
+  }
+  var url = document.location.pathname;
+  var referrer = document.referrer;
+  var language = navigator.language;
+  var platform = navigator.platform;
+  var size = "".concat(window.screen.width, "x").concat(window.screen.height);
+  var meta = {
+    url: url,
+    referrer: referrer,
+    anonymousId: cookieGet('s_a_js_uid'),
+    language: language,
+    platform: platform,
+    screen: size
+  };
+  window.addEventListener('error', function (event) {
+    console.log('error');
+    console.log(event);
+  });
+}
 
 var api = getSyncScriptParams();
 document.addEventListener("DOMContentLoaded", function () {
-  console.log('Your document is ready!');
   var sweepInit = new Sweep(api.key);
   trackPageView();
   var clickEvents = [].slice.call(document.querySelectorAll('[data-sweep-click]'));
@@ -230,6 +252,9 @@ document.addEventListener("DOMContentLoaded", function () {
       trackEvent('click', _objectSpread2({}, eventData.split(",")));
     });
   });
+  if ('true' === api.logs) {
+    trackLogs();
+  }
 });
 var trackEvent = function trackEvent(name, data) {
   trackEvents(name, data);
@@ -237,10 +262,13 @@ var trackEvent = function trackEvent(name, data) {
 var trackPageView = function trackPageView() {
   trackPageViews();
 };
+var trackLogs = function trackLogs() {
+  trackErrors();
+};
 function getSyncScriptParams() {
   var scripts = document.currentScript;
-  console.log(scripts.getAttribute('key'));
   return {
-    key: scripts.getAttribute('key')
+    key: scripts.getAttribute('key'),
+    logs: scripts.getAttribute('logs')
   };
 }

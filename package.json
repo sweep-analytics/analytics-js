@@ -1,6 +1,6 @@
 {
   "name": "sweep-analytics-js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Vanilla ES6 tracking library for sweep analytics integration.",
   "repository": "git@github.com:bentzibentz/sweep-analytics-js.git",
   "author": {
@@ -19,10 +19,7 @@
   "browser": "dist/sweep.min.js",
   "module": "dist/sweep.mjs",
   "test": "test/assets/js/sweep.js",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist/**/*"],
   "browserslist": [
     "Chrome 49",
     "Edge 15",
@@ -88,10 +85,6 @@
     "xo": "^0.24.0"
   },
   "dependencies": {
-    "@bundled-es-modules/uuid": "^3.3.2-rc2",
-    "component-cookie": "^1.1.4",
-    "js-cookie": "^2.2.0",
-    "uuid": "^3.3.2",
-    "uuidv4": "^4.0.0"
+    "@bundled-es-modules/uuid": "^3.3.2-rc2"
   }
 }

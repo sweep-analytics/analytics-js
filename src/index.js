@@ -1,11 +1,10 @@
 import Sweep from './sweep';
-import { trackPageViews, trackEvents } from './sweep';
+import { trackPageViews, trackEvents, trackErrors } from './sweep';
 
 const api = getSyncScriptParams();
+
 // check if document is ready ( Browsers > IE8 )
 document.addEventListener("DOMContentLoaded", () => {
-
-    console.log('Your document is ready!');
 
     // init Sweep
     const sweepInit = new Sweep(api.key);
@@ -24,6 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
+    if ('true' === api.logs) {
+        trackLogs();
+    }
+
 });
 
 // tracking functions
@@ -35,11 +38,16 @@ const trackPageView = () => {
     trackPageViews();
 };
 
+const trackLogs = () => {
+    trackErrors();
+};
+
 // helper functions
 function getSyncScriptParams() {
     const scripts = document.currentScript;
-    console.log(scripts.getAttribute('key'));
+    // console.log(scripts.getAttribute('key'));
     return {
         key : scripts.getAttribute('key'),
+        logs : scripts.getAttribute('logs'),
     };
-};
+}

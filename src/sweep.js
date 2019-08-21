@@ -27,8 +27,7 @@ const trackEventMutation = () => `mutation trackEvent($name: String!, $client: S
   }
 }`;
 
-export function trackPageViews(screen) {
-    console.log('trackPageViews');
+export function trackPageViews() {
 
     if (!cookieGet('s_a_js_uid')) {
         cookieSet('s_a_js_uid', uuidv4());
@@ -40,7 +39,7 @@ export function trackPageViews(screen) {
         throw new Error('No api key provided');
     }
 
-    console.log(cookieGet('s_a_js_uid'));
+    // console.log(cookieGet('s_a_js_uid'));
 
     const url = document.location.pathname;
     const referrer = document.referrer;
@@ -88,7 +87,7 @@ export function trackEvents(event, meta = {}) {
         cookieSet('s_a_js_uid', uuidv4());
     }
 
-    console.log(cookieGet('s_a_js_uid'));
+    // console.log(cookieGet('s_a_js_uid'));
 
     const clientId = window.sweep.sweepApiKey;
 
@@ -121,5 +120,41 @@ export function trackEvents(event, meta = {}) {
         .catch((error) => {
             console.log(error);
         });
+
+}
+
+export function trackErrors() {
+
+    if (!cookieGet('s_a_js_uid')) {
+        cookieSet('s_a_js_uid', uuidv4());
+    }
+
+    // console.log(cookieGet('s_a_js_uid'));
+
+    const clientId = window.sweep.sweepApiKey;
+
+    if (!clientId) {
+        throw new Error('No api key provided');
+    }
+
+    const url = document.location.pathname;
+    const referrer = document.referrer;
+    const language = navigator.language;
+    const platform = navigator.platform;
+    const size = `${window.screen.width}x${window.screen.height}`;
+
+    const meta = {
+        url,
+        referrer,
+        anonymousId: cookieGet('s_a_js_uid'),
+        language,
+        platform,
+        screen: size
+    };
+
+    window.addEventListener('error', function(event) {
+        console.log('error');
+        console.log(event);
+    });
 
 }
