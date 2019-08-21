@@ -236,8 +236,15 @@ function trackErrors() {
     screen: size
   };
   window.addEventListener('error', function (event) {
-    console.log('error');
-    console.log(event);
+    var log = {
+      line: event.lineno,
+      filename: event.filename,
+      message: event.message,
+      error: event.error
+    };
+    console.log('error data');
+    console.log(meta);
+    console.log(log);
   });
 }
 
