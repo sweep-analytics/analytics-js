@@ -33,52 +33,85 @@ export function trackPageViews() {
         cookieSet('s_a_js_uid', uuidv4());
     }
 
-    const clientId = window.sweep.sweepApiKey;
+    try {
 
-    if (!clientId) {
-        throw new Error('No api key provided');
-    }
+        const clientId = window.sweep.sweepApiKey;
 
-    // console.log(cookieGet('s_a_js_uid'));
+        // break if no api key provided
+        if (!clientId) {
+            throw new Error('No api key provided');
+        }
 
-    const url = document.location.pathname;
-    const referrer = document.referrer;
-    const language = navigator.language;
-    const platform = navigator.platform;
-    const size = `${window.screen.width}x${window.screen.height}`;
+        const nav = window.navigator;
 
-    const meta = {
-        url,
-        referrer,
-        anonymousId: cookieGet('s_a_js_uid'),
-        language,
-        platform,
-        screen: size
-    };
+        const loc = window.location;
+        const userAgent = nav.userAgent;
 
-    const options = {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            operationName: 'trackEvent',
-            query: trackEventMutation(),
-            variables: {
-                name: 'userSession',
-                client: clientId,
-                meta
-            }
-        })
-    };
+        // return if user agent is bot
+        if (userAgent.search(/(bot|spider|crawl)/ig) > -1) {
+            throw new Error('bot… not tracked');
+        }
 
-    fetch(`https://api.sweep-analytics.com/public`, options)
-        .then((res) => {
-            // console.log(res.json());
+        let previousUrl = '';
+
+        // generate meta data
+        let url;
+        if (!loc.hash) {
+            url = loc.protocol + '//' + loc.hostname + loc.pathname;
+        } else {
+            url = loc.protocol + '//' + loc.hostname + loc.pathname + loc.hash;
+        }
+        const referrer = document.referrer;
+        const language = navigator.language;
+        const platform = navigator.platform;
+        const size = `${window.screen.width}x${window.screen.height}`;
+
+        // build meta data object
+        const meta = {
+            url,
+            referrer,
+            anonymousId: cookieGet('s_a_js_uid'),
+            language,
+            platform,
+            userAgent,
+            screen: size
+        };
+
+        // build request
+        const options = {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                operationName: 'trackEvent',
+                query: trackEventMutation(),
+                variables: {
+                    name: 'userSession',
+                    client: clientId,
+                    meta
+                }
+            })
+        };
+
+        // break if tried to send previews url again
+        if (previousUrl === url) {
+            return
+        };
+        previousUrl = url;
+
+        // fetch request
+        fetch(`https://api.sweep-analytics.com/public`, options)
+        .then(() => {
+            console.log('send');
         })
         .catch((err) => {
-            console.log(err);
-        })
+            throw new Error(err);
+        });
+
+    } catch(e) {
+        console.error(e);
+    }
 
 }
 
@@ -87,83 +120,128 @@ export function trackEvents(event, meta = {}) {
         cookieSet('s_a_js_uid', uuidv4());
     }
 
-    // console.log(cookieGet('s_a_js_uid'));
+    try {
 
-    const clientId = window.sweep.sweepApiKey;
+        const clientId = window.sweep.sweepApiKey;
 
-    if (!clientId) {
-        throw new Error('No api key provided');
-    }
+        // break if no api key provided
+        if (!clientId) {
+            throw new Error('No api key provided');
+        }
 
-    meta.path = document.location.pathname;
+        const nav = window.navigator;
 
-    const options = {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            operationName: 'trackEvent',
-            query: trackEventMutation(),
-            variables: {
-                name: event,
-                client: clientId,
-                meta
-            }
-        })
-    };
+        const loc = window.location;
+        const userAgent = nav.userAgent;
 
-    fetch('https://api.sweep-analytics.com/public', options)
-        .then((res) => {
-            // console.log(res.json());
+        // return if user agent is bot
+        if (userAgent.search(/(bot|spider|crawl)/ig) > -1) {
+            throw new Error('bot… not tracked');
+        }
+
+        // pass pathname to meta data
+        meta.path = loc.pathname;
+
+        // build request
+        const options = {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                operationName: 'trackEvent',
+                query: trackEventMutation(),
+                variables: {
+                    name: event,
+                    client: clientId,
+                    meta
+                }
+            })
+        };
+
+        // fetch request
+        fetch('https://api.sweep-analytics.com/public', options)
+        .then(() => {
+            console.log('send event');
         })
         .catch((error) => {
-            console.log(error);
+            throw new Error(error);
         });
+
+    } catch(e) {
+        console.error(e);
+    }
 
 }
 
 export function trackErrors() {
 
+
     if (!cookieGet('s_a_js_uid')) {
         cookieSet('s_a_js_uid', uuidv4());
     }
 
-    // console.log(cookieGet('s_a_js_uid'));
+    try {
 
-    const clientId = window.sweep.sweepApiKey;
+        const clientId = window.sweep.sweepApiKey;
 
-    if (!clientId) {
-        throw new Error('No api key provided');
-    }
+        if (!clientId) {
+            throw new Error('No api key provided');
+        }
 
-    const url = document.location.pathname;
-    const referrer = document.referrer;
-    const language = navigator.language;
-    const platform = navigator.platform;
-    const size = `${window.screen.width}x${window.screen.height}`;
+        const nav = window.navigator;
 
-    const meta = {
-        url,
-        referrer,
-        anonymousId: cookieGet('s_a_js_uid'),
-        language,
-        platform,
-        screen: size
-    };
+        const loc = window.location;
+        const userAgent = nav.userAgent;
 
-    window.addEventListener('error', (event) => {
+        // return if user agent is bot
+        if (userAgent.search(/(bot|spider|crawl)/ig) > -1) {
+            throw new Error('bot… not tracked');
+        }
 
-        const log = {
-            line: event.lineno,
-            filename: event.filename,
-            message: event.message,
-            error: event.error
+        let previousUrl = '';
+
+        // generate meta data
+        let url;
+        if (!loc.hash) {
+            url = loc.protocol + '//' + loc.hostname + loc.pathname;
+        } else {
+            url = loc.protocol + '//' + loc.hostname + loc.pathname + loc.hash;
+        }
+        const referrer = document.referrer;
+        const language = navigator.language;
+        const platform = navigator.platform;
+        const size = `${window.screen.width}x${window.screen.height}`;
+
+        // build meta data object
+        const meta = {
+            url,
+            referrer,
+            anonymousId: cookieGet('s_a_js_uid'),
+            language,
+            platform,
+            userAgent,
+            screen: size
         };
 
-        console.log('error data');
-        console.log(meta);
-        console.log(log);
-    });
+        // TODO send log event via api
+        window.addEventListener('error', (event) => {
+
+            const log = {
+                line: event.lineno,
+                filename: event.filename,
+                message: event.message,
+                error: event.error
+            };
+
+            console.log('error data');
+            console.log(meta);
+            console.log(log);
+        });
+
+    } catch (e) {
+        console.error(e);
+    }
+
 
 }

@@ -152,105 +152,156 @@
     if (!cookieGet('s_a_js_uid')) {
       cookieSet('s_a_js_uid', v4_1());
     }
-    var clientId = window.sweep.sweepApiKey;
-    if (!clientId) {
-      throw new Error('No api key provided');
+    try {
+      var clientId = window.sweep.sweepApiKey;
+      if (!clientId) {
+        throw new Error('No api key provided');
+      }
+      var nav = window.navigator;
+      var loc = window.location;
+      var userAgent = nav.userAgent;
+      if (userAgent.search(/(bot|spider|crawl)/ig) > -1) {
+        throw new Error('bot… not tracked');
+      }
+      var previousUrl = '';
+      var url;
+      if (!loc.hash) {
+        url = loc.protocol + '//' + loc.hostname + loc.pathname;
+      } else {
+        url = loc.protocol + '//' + loc.hostname + loc.pathname + loc.hash;
+      }
+      var referrer = document.referrer;
+      var language = navigator.language;
+      var platform = navigator.platform;
+      var size = "".concat(window.screen.width, "x").concat(window.screen.height);
+      var meta = {
+        url: url,
+        referrer: referrer,
+        anonymousId: cookieGet('s_a_js_uid'),
+        language: language,
+        platform: platform,
+        userAgent: userAgent,
+        screen: size
+      };
+      var options = {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          operationName: 'trackEvent',
+          query: trackEventMutation(),
+          variables: {
+            name: 'userSession',
+            client: clientId,
+            meta: meta
+          }
+        })
+      };
+      if (previousUrl === url) {
+        return;
+      }
+      ;
+      previousUrl = url;
+      fetch("https://api.sweep-analytics.com/public", options).then(function () {
+        console.log('send');
+      }).catch(function (err) {
+        throw new Error(err);
+      });
+    } catch (e) {
+      console.error(e);
     }
-    var url = document.location.pathname;
-    var referrer = document.referrer;
-    var language = navigator.language;
-    var platform = navigator.platform;
-    var size = "".concat(window.screen.width, "x").concat(window.screen.height);
-    var meta = {
-      url: url,
-      referrer: referrer,
-      anonymousId: cookieGet('s_a_js_uid'),
-      language: language,
-      platform: platform,
-      screen: size
-    };
-    var options = {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        operationName: 'trackEvent',
-        query: trackEventMutation(),
-        variables: {
-          name: 'userSession',
-          client: clientId,
-          meta: meta
-        }
-      })
-    };
-    fetch("https://api.sweep-analytics.com/public", options).then(function (res) {
-    }).catch(function (err) {
-      console.log(err);
-    });
   }
   function trackEvents(event) {
     var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     if (!cookieGet('s_a_js_uid')) {
       cookieSet('s_a_js_uid', v4_1());
     }
-    var clientId = window.sweep.sweepApiKey;
-    if (!clientId) {
-      throw new Error('No api key provided');
+    try {
+      var clientId = window.sweep.sweepApiKey;
+      if (!clientId) {
+        throw new Error('No api key provided');
+      }
+      var nav = window.navigator;
+      var loc = window.location;
+      var userAgent = nav.userAgent;
+      if (userAgent.search(/(bot|spider|crawl)/ig) > -1) {
+        throw new Error('bot… not tracked');
+      }
+      meta.path = loc.pathname;
+      var options = {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          operationName: 'trackEvent',
+          query: trackEventMutation(),
+          variables: {
+            name: event,
+            client: clientId,
+            meta: meta
+          }
+        })
+      };
+      fetch('https://api.sweep-analytics.com/public', options).then(function () {
+        console.log('send event');
+      }).catch(function (error) {
+        throw new Error(error);
+      });
+    } catch (e) {
+      console.error(e);
     }
-    meta.path = document.location.pathname;
-    var options = {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        operationName: 'trackEvent',
-        query: trackEventMutation(),
-        variables: {
-          name: event,
-          client: clientId,
-          meta: meta
-        }
-      })
-    };
-    fetch('https://api.sweep-analytics.com/public', options).then(function (res) {
-    }).catch(function (error) {
-      console.log(error);
-    });
   }
   function trackErrors() {
     if (!cookieGet('s_a_js_uid')) {
       cookieSet('s_a_js_uid', v4_1());
     }
-    var clientId = window.sweep.sweepApiKey;
-    if (!clientId) {
-      throw new Error('No api key provided');
-    }
-    var url = document.location.pathname;
-    var referrer = document.referrer;
-    var language = navigator.language;
-    var platform = navigator.platform;
-    var size = "".concat(window.screen.width, "x").concat(window.screen.height);
-    var meta = {
-      url: url,
-      referrer: referrer,
-      anonymousId: cookieGet('s_a_js_uid'),
-      language: language,
-      platform: platform,
-      screen: size
-    };
-    window.addEventListener('error', function (event) {
-      var log = {
-        line: event.lineno,
-        filename: event.filename,
-        message: event.message,
-        error: event.error
+    try {
+      var clientId = window.sweep.sweepApiKey;
+      if (!clientId) {
+        throw new Error('No api key provided');
+      }
+      var nav = window.navigator;
+      var loc = window.location;
+      var userAgent = nav.userAgent;
+      if (userAgent.search(/(bot|spider|crawl)/ig) > -1) {
+        throw new Error('bot… not tracked');
+      }
+      var previousUrl = '';
+      var url;
+      if (!loc.hash) {
+        url = loc.protocol + '//' + loc.hostname + loc.pathname;
+      } else {
+        url = loc.protocol + '//' + loc.hostname + loc.pathname + loc.hash;
+      }
+      var referrer = document.referrer;
+      var language = navigator.language;
+      var platform = navigator.platform;
+      var size = "".concat(window.screen.width, "x").concat(window.screen.height);
+      var meta = {
+        url: url,
+        referrer: referrer,
+        anonymousId: cookieGet('s_a_js_uid'),
+        language: language,
+        platform: platform,
+        userAgent: userAgent,
+        screen: size
       };
-      console.log('error data');
-      console.log(meta);
-      console.log(log);
-    });
+      window.addEventListener('error', function (event) {
+        var log = {
+          line: event.lineno,
+          filename: event.filename,
+          message: event.message,
+          error: event.error
+        };
+        console.log('error data');
+        console.log(meta);
+        console.log(log);
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   var api = getSyncScriptParams();
