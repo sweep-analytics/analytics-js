@@ -19,7 +19,9 @@
   "browser": "dist/sweep.min.js",
   "module": "dist/sweep.mjs",
   "test": "test/assets/js/sweep.js",
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "browserslist": [
     "Chrome 49",
     "Edge 15",
