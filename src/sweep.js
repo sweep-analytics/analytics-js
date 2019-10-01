@@ -176,7 +176,6 @@ export function trackEvents(event, meta = {}) {
 
 export function trackErrors() {
 
-
     if (!cookieGet('s_a_js_uid')) {
         cookieSet('s_a_js_uid', uuidv4());
     }

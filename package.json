@@ -1,12 +1,12 @@
 {
-  "name": "sweep-analytics-js",
-  "version": "0.0.2",
+  "name": "@sweep/analytics-js",
+  "version": "0.0.3",
   "description": "Vanilla ES6 tracking library for sweep analytics integration.",
-  "repository": "git@github.com:bentzibentz/sweep-analytics-js.git",
+  "repository": "git@github.com:bentzibentz/sweep-analytics/analytics-js.git",
   "author": {
-    "name": "Fabian Bentz & Jonas Regner",
-    "url": "https://www.fabianbentz.de",
-    "email": "info@fabianbentz.de"
+    "name": "Sweep Analytics",
+    "url": "https://www.sweep-analytics.com",
+    "email": "info@sweep-analytics.de"
   },
   "license": "MIT",
   "keywords": [
