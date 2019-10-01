@@ -1,7 +1,7 @@
 sweep analytics js
 =====
 
-Developer friendly ES6 tracking library for sweep analytics.
+Easy, small, developer and privacy-friendly analytics service.
 
 
 About
