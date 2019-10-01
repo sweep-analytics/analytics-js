@@ -27,5 +27,5 @@ Thank You
 License
 -------
 
-Copyright (c) 2019 Fabian Bentz & Jonas Regner.
+Copyright (c) 2019 sweep analytics.
 Released under the [MIT](LICENSE) license.
