@@ -1,5 +1,5 @@
 /*!
- * @sweep/analytics-js v0.0.4
+ * @sweep/analytics-js v0.0.5
  * Copyright (c) 2019-2019 Sweep Analytics
  * License: MIT
  */
