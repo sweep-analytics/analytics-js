@@ -1,6 +1,6 @@
 /*!
- * sweep-analytics-js v0.0.2
- * Copyright (c) 2019-2019 Fabian Bentz & Jonas Regner
+ * @sweep/analytics-js v0.0.3
+ * Copyright (c) 2019-2019 undefined
  * License: MIT
  */
 (function (factory) {
