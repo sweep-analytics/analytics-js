@@ -6,7 +6,11 @@
     "type": "git",
     "url": "git@github.com:bentzibentz/sweep-analytics/analytics-js.git"
   },
-  "author": "Sweep Analytics <info@sweep-analytics.de> (https://www.sweep-analytics.com)",
+  "author": {
+    "name": "Sweep Analytics",
+    "url": "https://www.sweep-analytics.com",
+    "email": "info@sweep-analytics.de"
+  },
   "license": "MIT",
   "keywords": [
     "analytics",

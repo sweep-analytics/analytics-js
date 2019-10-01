@@ -1,6 +1,6 @@
 /*!
  * @sweep/analytics-js v0.0.4
- * Copyright (c) 2019-2019 undefined
+ * Copyright (c) 2019-2019 Sweep Analytics
  * License: MIT
  */
 function _classCallCheck(instance, Constructor) {
