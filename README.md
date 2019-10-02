@@ -27,7 +27,7 @@ What do we track
 -----
 
 #### NO ip address
-We do not track, send or log the io address of the user.
+We do not track, send or log the ip address of the user.
 
 #### Page views
 - url
