@@ -1,5 +1,5 @@
 /*!
- * @sweep/analytics-js v0.0.5
+ * @sweep/analytics-js v0.1.0
  * Copyright (c) 2019-2019 Sweep Analytics
  * License: MIT
  */
@@ -137,11 +137,12 @@
     return null;
   }
 
-  var Sweep = function Sweep(apiKey) {
+  var Sweep = function Sweep(apiKey, logs, noCookie) {
     _classCallCheck(this, Sweep);
-    this.clientId = apiKey;
     window.sweep = {
-      sweepApiKey: apiKey
+      sweepApiKey: apiKey,
+      sweepLogs: logs,
+      sweepNoCookie: noCookie
     };
   }
   ;
@@ -149,7 +150,8 @@
     return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n  trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n    name,\n    client,\n    meta\n  }\n}";
   };
   function trackPageViews() {
-    if (!cookieGet('s_a_js_uid')) {
+    var noCookie = window.sweep.sweepNoCookie;
+    if ('true' !== noCookie && !cookieGet('s_a_js_uid')) {
       cookieSet('s_a_js_uid', v4_1());
     }
     try {
@@ -177,12 +179,14 @@
       var meta = {
         url: url,
         referrer: referrer,
-        anonymousId: cookieGet('s_a_js_uid'),
         language: language,
         platform: platform,
         userAgent: userAgent,
         screen: size
       };
+      if ('true' !== noCookie) {
+        meta.anonymousId = cookieGet('s_a_js_uid');
+      }
       var options = {
         method: 'post',
         headers: {
@@ -214,9 +218,6 @@
   }
   function trackEvents(event) {
     var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    if (!cookieGet('s_a_js_uid')) {
-      cookieSet('s_a_js_uid', v4_1());
-    }
     try {
       var clientId = window.sweep.sweepApiKey;
       if (!clientId) {
@@ -254,10 +255,11 @@
     }
   }
   function trackErrors() {
-    if (!cookieGet('s_a_js_uid')) {
-      cookieSet('s_a_js_uid', v4_1());
-    }
     try {
+      var enableLogs = window.sweep.logs;
+      if ('true' !== enableLogs || !enableLogs) {
+        return;
+      }
       var clientId = window.sweep.sweepApiKey;
       if (!clientId) {
         throw new Error('No api key provided');
@@ -282,7 +284,6 @@
       var meta = {
         url: url,
         referrer: referrer,
-        anonymousId: cookieGet('s_a_js_uid'),
         language: language,
         platform: platform,
         userAgent: userAgent,
@@ -306,7 +307,7 @@
 
   var api = getSyncScriptParams();
   document.addEventListener("DOMContentLoaded", function () {
-    var sweepInit = new Sweep(api.key);
+    var sweepInit = new Sweep(api.key, api.logs, api.noCookie);
     trackPageView();
     var clickEvents = [].slice.call(document.querySelectorAll('[data-sweep-click]'));
     clickEvents.forEach(function (clickEvent) {
@@ -332,7 +333,8 @@
     var scripts = document.currentScript;
     return {
       key: scripts.getAttribute('key'),
-      logs: scripts.getAttribute('logs')
+      logs: scripts.getAttribute('logs'),
+      noCookie: scripts.getAttribute('noCookie')
     };
   }
 

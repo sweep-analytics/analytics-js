@@ -1,10 +1,10 @@
 {
   "name": "@sweep/analytics-js",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Vanilla ES6 tracking library for sweep analytics integration.",
   "repository": {
     "type": "git",
-    "url": "git@github.com:bentzibentz/sweep-analytics/analytics-js.git"
+    "url": "git@github.com:sweep-analytics/analytics-js.git"
   },
   "author": {
     "name": "Sweep Analytics",

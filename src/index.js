@@ -7,7 +7,7 @@ const api = getSyncScriptParams();
 document.addEventListener("DOMContentLoaded", () => {
 
     // init Sweep
-    const sweepInit = new Sweep(api.key);
+    const sweepInit = new Sweep(api.key, api.logs, api.noCookie);
 
     // track page view
     trackPageView();
@@ -49,5 +49,6 @@ function getSyncScriptParams() {
     return {
         key : scripts.getAttribute('key'),
         logs : scripts.getAttribute('logs'),
+        noCookie : scripts.getAttribute('noCookie'),
     };
 }

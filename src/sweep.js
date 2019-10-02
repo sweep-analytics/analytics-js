@@ -3,11 +3,11 @@ import { cookieSet, cookieGet } from './cookies';
 
 export default class Sweep {
 
-    constructor(apiKey) {
-        this.clientId = apiKey;
-
+    constructor(apiKey, logs, noCookie) {
         window.sweep = {
-            sweepApiKey: apiKey
+            sweepApiKey: apiKey,
+            sweepLogs: logs,
+            sweepNoCookie: noCookie
         };
     }
 
@@ -29,7 +29,9 @@ const trackEventMutation = () => `mutation trackEvent($name: String!, $client: S
 
 export function trackPageViews() {
 
-    if (!cookieGet('s_a_js_uid')) {
+    const noCookie = window.sweep.sweepNoCookie;
+
+    if ('true' !== noCookie && !cookieGet('s_a_js_uid')) {
         cookieSet('s_a_js_uid', uuidv4());
     }
 
@@ -70,12 +72,16 @@ export function trackPageViews() {
         const meta = {
             url,
             referrer,
-            anonymousId: cookieGet('s_a_js_uid'),
             language,
             platform,
             userAgent,
             screen: size
         };
+
+        // use cookie only if not disabled
+        if ('true' !== noCookie) {
+            meta.anonymousId = cookieGet('s_a_js_uid');
+        }
 
         // build request
         const options = {
@@ -116,9 +122,6 @@ export function trackPageViews() {
 }
 
 export function trackEvents(event, meta = {}) {
-    if (!cookieGet('s_a_js_uid')) {
-        cookieSet('s_a_js_uid', uuidv4());
-    }
 
     try {
 
@@ -176,11 +179,13 @@ export function trackEvents(event, meta = {}) {
 
 export function trackErrors() {
 
-    if (!cookieGet('s_a_js_uid')) {
-        cookieSet('s_a_js_uid', uuidv4());
-    }
-
     try {
+
+        const enableLogs = window.sweep.logs;
+
+        if ('true' !== enableLogs || !enableLogs) {
+            return;
+        }
 
         const clientId = window.sweep.sweepApiKey;
 
@@ -216,7 +221,6 @@ export function trackErrors() {
         const meta = {
             url,
             referrer,
-            anonymousId: cookieGet('s_a_js_uid'),
             language,
             platform,
             userAgent,
