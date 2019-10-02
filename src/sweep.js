@@ -19,8 +19,8 @@ export default class Sweep {
 
 }
 
-const trackEventMutation = () => `mutation trackEvent($name: String!, $client: String!, $meta: JSON) {
-  trackEvent(input: { name: $name, client: $client, meta: $meta }) { 
+const trackEventMutation = () => `mutation trackEvent($type: EventType!, $name: String!, $client: String!, $meta: JSON) {
+  trackEvent(type: $type, input: { name: $name, client: $client, meta: $meta }) { 
     name,
     client,
     meta
@@ -93,6 +93,7 @@ export function trackPageViews() {
                 operationName: 'trackEvent',
                 query: trackEventMutation(),
                 variables: {
+                    type: 'ANALYSIS',
                     name: 'userSession',
                     client: clientId,
                     meta
@@ -155,6 +156,7 @@ export function trackEvents(event, meta = {}) {
                 operationName: 'trackEvent',
                 query: trackEventMutation(),
                 variables: {
+                    type: 'ANALYSIS',
                     name: event,
                     client: clientId,
                     meta
@@ -227,7 +229,6 @@ export function trackErrors() {
             screen: size
         };
 
-        // TODO send log event via api
         window.addEventListener('error', (event) => {
 
             const log = {
@@ -237,9 +238,34 @@ export function trackErrors() {
                 error: event.error
             };
 
-            console.log('error data');
-            console.log(meta);
-            console.log(log);
+            meta.log = log;
+
+            // build request
+            const options = {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    operationName: 'trackEvent',
+                    query: trackEventMutation(),
+                    variables: {
+                        type: 'LOG',
+                        name: event,
+                        client: clientId,
+                        meta
+                    }
+                })
+            };
+
+            // fetch request
+            fetch('https://api.sweep-analytics.com/public', options)
+            .then(() => {
+                console.log('send event');
+            })
+            .catch((error) => {
+                throw new Error(error);
+            });
         });
 
     } catch (e) {

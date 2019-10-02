@@ -1,5 +1,5 @@
 /*!
- * @sweep/analytics-js v0.1.0
+ * @sweep/analytics-js v0.1.1
  * Copyright (c) 2019-2019 Sweep Analytics
  * License: MIT
  */
@@ -142,7 +142,7 @@ var Sweep = function Sweep(apiKey, logs, noCookie) {
 }
 ;
 var trackEventMutation = function trackEventMutation() {
-  return "mutation trackEvent($name: String!, $client: String!, $meta: JSON) {\n  trackEvent(input: { name: $name, client: $client, meta: $meta }) { \n    name,\n    client,\n    meta\n  }\n}";
+  return "mutation trackEvent($type: EventType!, $name: String!, $client: String!, $meta: JSON) {\n  trackEvent(type: $type, input: { name: $name, client: $client, meta: $meta }) { \n    name,\n    client,\n    meta\n  }\n}";
 };
 function trackPageViews() {
   var noCookie = window.sweep.sweepNoCookie;
@@ -191,6 +191,7 @@ function trackPageViews() {
         operationName: 'trackEvent',
         query: trackEventMutation(),
         variables: {
+          type: 'ANALYSIS',
           name: 'userSession',
           client: clientId,
           meta: meta
@@ -234,6 +235,7 @@ function trackEvents(event) {
         operationName: 'trackEvent',
         query: trackEventMutation(),
         variables: {
+          type: 'ANALYSIS',
           name: event,
           client: clientId,
           meta: meta
@@ -291,9 +293,28 @@ function trackErrors() {
         message: event.message,
         error: event.error
       };
-      console.log('error data');
-      console.log(meta);
-      console.log(log);
+      meta.log = log;
+      var options = {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          operationName: 'trackEvent',
+          query: trackEventMutation(),
+          variables: {
+            type: 'LOG',
+            name: event,
+            client: clientId,
+            meta: meta
+          }
+        })
+      };
+      fetch('https://api.sweep-analytics.com/public', options).then(function () {
+        console.log('send event');
+      }).catch(function (error) {
+        throw new Error(error);
+      });
     });
   } catch (e) {
     console.error(e);

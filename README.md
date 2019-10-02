@@ -14,9 +14,9 @@ Usage
 -----
 Add your API Key to the ```[key]``` attribute.
 
-To disable cookie usage set the ```[noCookie]``` attribute to ```false```, if is set to ```false``` no unique user tracking is enabled.
+To disable cookie usage set the ```[noCookie]``` attribute to ```true```, if is set to ```true``` no unique user tracking is enabled.
 
-To enable error logging set the ```[logs]``` attribute to ```true```. (coming soon)
+To enable error logging set the ```[logs]``` attribute to ```true```.
 
 To track events like button clicks add the ```data-sweep-click="[TRACKING_VALUE]"``` attribute to the element.
 
@@ -68,11 +68,6 @@ Contributors
     </td>
 </tr>
 </table>
-
-
-Info
----------
-*log tracking coming soon
 
 License
 -------
