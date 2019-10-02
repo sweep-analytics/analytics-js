@@ -7,7 +7,7 @@ Installation
 For installation, just add our javascript tracking snippet at the ```<head>``` of your page and set your API Key.
 
 ```bash
-<script src="https://unpkg.com/@sweep/analytics-js@0.0.6/dist/sweep.min.js" key="[YOUR_API_KEY]" logs="[true/false]" noCookie="[true/false]" type="application/javascript"></script
+<script src="https://unpkg.com/@sweep/analytics-js@0.1.0/dist/sweep.min.js" key="[YOUR_API_KEY]" logs="[true/false]" noCookie="[true/false]" type="application/javascript"></script
 ```
 
 Usage
